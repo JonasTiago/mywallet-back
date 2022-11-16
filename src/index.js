@@ -142,4 +142,28 @@ app.post("/entrada", async (req, res) => {
   }
 });
 
+app.get("/records", async (req, res) => {
+  const { authorization } = req.headers;
+  const token = authorization?.replace("Bearer ", "");
+
+  if (!token) {
+    return res.sendStatus(401);
+  }
+
+  try {
+    const userOk = await sessionsCollection.findOne({ token });
+
+    if (!userOk) return res.sendStatus(400);
+
+    const records = await recordsCollection
+      .find({ user_id: userOk.userId })
+      .toArray();
+
+    res.status(200).send(records);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
 app.listen(5000, () => console.log("app running port:5000"));
