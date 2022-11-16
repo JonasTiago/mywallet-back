@@ -1,0 +1,8 @@
+rota => post/sign-up 
+=> body = { name: "mais de 3 caractere", email:"nome@example.com", password: "mais de 8"}
+
+rota => post/sign-in
+=> body = {email:"deve exiti no sistema", password}
+retorna um token
+
+rota => post/gasto
