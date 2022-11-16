@@ -84,4 +84,33 @@ app.post("/sign-in", async (req, res) => {
   }
 });
 
+app.post("/saida", async (req, res) => {
+  const { descrição, valor } = req.body; //validar esses dados
+  const { authorization } = req.headers;
+  const token = authorization?.replace("Bearer ", "");
+
+  if (!token) {
+    return res.sendStatus(401);
+  }
+
+  try {
+    const userOk = await sessionsCollection.findOne({ token });
+
+    if (!userOk) return res.sendStatus(400);
+
+    const record = {
+      descrição,
+      valor,
+      user_id: userOk.userId,
+      status: "Saida",
+    };
+
+    await recordsCollection.insertOne(record);
+    res.sendStatus(201);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
 app.listen(5000, () => console.log("app running port:5000"));
