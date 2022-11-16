@@ -61,6 +61,27 @@ app.post("/sign-up", async (req, res) => {
   }
 });
 
+app.post("/sign-in", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await userCollection.findOne({ email });
 
+    if (user && bcrypt.compareSync(password, user.password)) {
+      const token = uuidV4();
+
+      await sessionsCollection.insertOne({
+        token,
+        userId: user._id,
+      });
+
+      return res.status(200).send({ token });
+    } else {
+      return res.status(401).send("erro de login");
+    }
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
 
 app.listen(5000, () => console.log("app running port:5000"));
