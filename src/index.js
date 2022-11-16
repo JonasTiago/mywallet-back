@@ -14,6 +14,12 @@ const userSchema = joi.object({
   password: joi.string().min(8).required(),
 });
 
+const recordSchema = joi.object({
+  descrição: joi.string().min(3).required(),
+  valor: joi.string().required(),
+  status: joi.string().valid("entrada", "saida").required(),
+});
+
 dotenv.config();
 app.use(cors());
 app.use(express.json());
@@ -84,13 +90,27 @@ app.post("/sign-in", async (req, res) => {
   }
 });
 
-app.post("/saida", async (req, res) => {
+//verificar status codes
+app.post("/records/:status", async (req, res) => {
   const { descrição, valor } = req.body; //validar esses dados
+  const { status } = req.params;
+
   const { authorization } = req.headers;
   const token = authorization?.replace("Bearer ", "");
 
-  if (!token) {
-    return res.sendStatus(401);
+  if (!token) return res.sendStatus(401);
+
+  const record = {
+    descrição,
+    valor,
+    status,
+  };
+
+  const { error } = recordSchema.validate(record, { abortEarly: false });
+
+  if (error) {
+    const errors = error.details.map((detail) => detail.message);
+    return res.status(422).send(errors);
   }
 
   try {
@@ -98,43 +118,7 @@ app.post("/saida", async (req, res) => {
 
     if (!userOk) return res.sendStatus(400);
 
-    const record = {
-      descrição,
-      valor,
-      user_id: userOk.userId,
-      status: "Saida",
-    };
-
-    await recordsCollection.insertOne(record);
-    res.sendStatus(201);
-  } catch (err) {
-    console.log(err);
-    res.sendStatus(500);
-  }
-});
-
-app.post("/entrada", async (req, res) => {
-  const { descrição, valor } = req.body; //validar esses dados
-  const { authorization } = req.headers;
-  const token = authorization?.replace("Bearer ", "");
-
-  if (!token) {
-    return res.sendStatus(401);
-  }
-
-  try {
-    const userOk = await sessionsCollection.findOne({ token });
-
-    if (!userOk) return res.sendStatus(400);
-
-    const record = {
-      descrição,
-      valor,
-      user_id: userOk.userId,
-      status: "Entrada",
-    };
-
-    await recordsCollection.insertOne(record);
+    await recordsCollection.insertOne({...record, user_id: userOk.userId});
     res.sendStatus(201);
   } catch (err) {
     console.log(err);
@@ -143,6 +127,7 @@ app.post("/entrada", async (req, res) => {
 });
 
 app.get("/records", async (req, res) => {
+  const limit = parseInt(req.query.limit);
   const { authorization } = req.headers;
   const token = authorization?.replace("Bearer ", "");
 
