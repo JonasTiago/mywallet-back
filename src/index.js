@@ -1,11 +1,10 @@
 import express from "express";
 import cors from "cors";
-import { MongoClient } from "mongodb";
-import dotenv from "dotenv";
 import joi from "joi";
 
-import { signUp,signIn } from "./controllers/userController.js";
-import { records, StatusRecords } from "./controllers/recordsController.js"
+import { signUp, signIn } from "./controllers/userController.js";
+import { records, StatusRecords } from "./controllers/recordsController.js";
+import { db } from "./database/db.js";
 
 const app = express();
 
@@ -21,22 +20,9 @@ export const recordSchema = joi.object({
   status: joi.string().valid("entrada", "saida").required(),
 });
 
-dotenv.config();
 app.use(cors());
 app.use(express.json());
 
-const mongoClient = new MongoClient(process.env.MONGO_URI);
-
-try {
-  await mongoClient.connect();
-  console.log("MongoDB Conectado!");
-} catch (err) {
-  console.log(err);
-}
-
-// criar/conectar com um db
-const db = mongoClient.db("myWallet");
-//criar/conectar com um  collection
 export const userCollection = db.collection("users");
 export const recordsCollection = db.collection("records");
 export const sessionsCollection = db.collection("sessions");
