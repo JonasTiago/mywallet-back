@@ -1,18 +1,12 @@
 import dayjs from "dayjs";
-import {
-  recordSchema,
-  sessionsCollection,
-  recordsCollection,
-} from "../index.js";
+import { sessionsCollection, recordsCollection } from "../database/db.js";
+import { recordSchema } from "../index.js";
 
 export async function StatusRecords(req, res) {
   const { descrição, valor } = req.body; //validar esses dados
   const { status } = req.params;
 
-  const { authorization } = req.headers;
-  const token = authorization?.replace("Bearer ", "");
-
-  if (!token) return res.sendStatus(401);
+  const token = req.token;
 
   const record = {
     descrição,
@@ -46,16 +40,13 @@ export async function StatusRecords(req, res) {
 
 export async function records(req, res) {
   // const limit = parseInt(req.query.limit);
-  const { authorization } = req.headers;
-  const token = authorization?.replace("Bearer ", "");
+  const token = req.token;
 
-  if (!token) {
-    return res.sendStatus(401);
-  }
+  console.log("esse", token)
 
   try {
     const userOk = await sessionsCollection.findOne({ token });
-
+    console.log(userOk)
     if (!userOk) return res.sendStatus(400);
 
     const records = await recordsCollection
