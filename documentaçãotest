@@ -1,8 +1,19 @@
-rota => post/sign-up 
-=> body = { name: "mais de 3 caractere", email:"nome@example.com", password: "mais de 8"}
+rota => post( /sign-up 
+enviar => body = { name: "mais de 3 caractere", email:"nome@example.com", password: "mais de 8"}
 
-rota => post/sign-in
-=> body = {email:"deve exiti no sistema", password}
-retorna um token
+rota => post( /sign-in
+enviar => body = {email:"deve exiti no sistema", password}
+retorna => um token
 
-rota => post/gasto
+rota => post( /records/entrada ou saida => 
+enviar => body = {	
+	"descrição" : "compras vida",
+	"valor" : "20",
+}
+
+enviar => auth => token
+
+
+rota => get( /records?limit => limit opcional
+enviar => auth = { token }
+
