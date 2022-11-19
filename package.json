@@ -5,6 +5,7 @@
   "description": "Implementando o back-end utilizando Node, Express e as tecnologias, conforme necessário para atender o front-end.",
   "main": "index.js",
   "scripts": {
+    "start":"node src/index.js",
     "dev": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

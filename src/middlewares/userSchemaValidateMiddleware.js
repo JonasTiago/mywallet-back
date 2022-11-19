@@ -15,8 +15,6 @@ export default function userSchemaValidate(req, res, next) {
     return res.status(422).send(errors);
   }
 
-  console.log(user)
-
   req.user = user;
 
   next();
