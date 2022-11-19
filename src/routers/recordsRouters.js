@@ -1,11 +1,14 @@
 import { Router } from "express";
 import { records, StatusRecords } from "../controllers/recordsController.js";
+import validateSchema from "../middlewares/validateSchemaMiddleware.js";
 import validationToken from "../middlewares/validateTokenMiddleware.js";
 
 const router = Router();
 
-router.post("/records/:status", validationToken, StatusRecords);
+router.use(validationToken);
 
-router.get("/records", validationToken, records);
+router.post("/records/:status", validateSchema, StatusRecords);
+
+router.get("/records", records);
 
 export default router;

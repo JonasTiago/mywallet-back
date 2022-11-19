@@ -1,10 +1,19 @@
-export default function validationToken(req, res, next) {
+import { sessionsCollection } from "../database/db.js";
+
+export default async function validationToken(req, res, next) {
   const { authorization } = req.headers;
   const token = authorization?.replace("Bearer ", "");
-    console.log(token)
+
   if (!token) return res.sendStatus(401);
 
-  req.token = token;
+  try {
+    const user = await sessionsCollection.findOne({ token });
+    if (!user) return res.sendStatus(400);
+
+    res.locals.user = user;
+  } catch (err) {
+    res.sendStatus(500);
+  }
 
   next();
 }
