@@ -3,13 +3,7 @@ import { userCollection, sessionsCollection } from "../database/db.js";
 import { v4 as uuidV4 } from "uuid";
 
 export async function signUp(req, res) {
-  const userExit = res.locals.user;
-
-  if (userExit) {
-    return res.status(409).send({ message: "Esse email já existe" });
-  }
-
-  const user = req.user;
+  const user = res.user;
 
   try {
     const passwordHash = bcrypt.hashSync(user.password, 10);
@@ -44,9 +38,8 @@ export async function signIn(req, res) {
       });
 
       return res.status(200).send({ token, user: user.name });
-    } else {
-      return res.status(401).send("Usuario/senha erradas!");
     }
+    res.sendStatus(401);
   } catch (err) {
     console.log(err);
     res.sendStatus(500);

@@ -8,7 +8,7 @@ export default async function validationToken(req, res, next) {
 
   try {
     const user = await sessionsCollection.findOne({ token });
-    if (!user) return res.sendStatus(400);
+    if (!user) return res.sendStatus(401);
 
     res.locals.user = user;
   } catch (err) {
